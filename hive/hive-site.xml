@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <!-- MySQL Metastore Configuration -->
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:mysql://mysql:3306/metastore_db?createDatabaseIfNotExist=true&amp;useSSL=false&amp;allowPublicKeyRetrieval=true</value>
+        <description>JDBC connect string for a JDBC metastore</description>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>com.mysql.cj.jdbc.Driver</value>
+        <description>Driver class name for a JDBC metastore</description>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>hive</value>
+        <description>Username to use against metastore database</description>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>hivepassword</value>
+        <description>password to use against metastore database</description>
+    </property>
+
+    <!-- Metastore Warehouse Configuration -->
+    <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>/user/hive/warehouse</value>
+        <description>Location of default database for the warehouse</description>
+    </property>
+
+    <!-- Metastore URI -->
+    <property>
+        <name>hive.metastore.uris</name>
+        <value>thrift://hive-metastore:9083</value>
+        <description>Thrift URI for the remote metastore</description>
+    </property>
+
+    <!-- Schema Verification -->
+    <property>
+        <name>hive.metastore.schema.verification</name>
+        <value>false</value>
+        <description>Enforce metastore schema version consistency</description>
+    </property>
+
+    <!-- Event Notification API Auth -->
+    <property>
+        <name>hive.metastore.event.db.notification.api.auth</name>
+        <value>false</value>
+    </property>
+
+    <!-- Hadoop Configuration -->
+    <property>
+        <name>fs.default.name</name>
+        <value>hdfs://hadoop-namenode:8020</value>
+        <description>NameNode URI</description>
+    </property>
+
+    <!-- Thrift Bind Host -->
+    <property>
+        <name>hive.server2.thrift.bind.host</name>
+        <value>0.0.0.0</value>
+    </property>
+
+    <!-- Disable remote user impersonation -->
+    <property>
+        <name>hive.server2.enable.doAs</name>
+        <value>false</value>
+    </property>
+
+    <!-- Authentication -->
+    <property>
+        <name>hive.server2.authentication</name>
+        <value>NONE</value>
+    </property>
+
+    <!-- HiveServer2 Configuration -->
+    <property>
+        <name>hive.server2.support.concurrency</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hive.server2.long.polling.timeout</name>
+        <value>50000</value>
+    </property>
+
+    <!-- Execution Engine: use MapReduce in local mode (no YARN needed) -->
+    <property>
+        <name>hive.execution.engine</name>
+        <value>mr</value>
+    </property>
+
+    <!-- Run MapReduce jobs locally (no YARN ResourceManager needed) -->
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>local</value>
+    </property>
+
+    <!-- HDFS Settings -->
+    <property>
+        <name>hive.exec.scratchdir</name>
+        <value>/tmp/hive</value>
+        <description>Scratch space for Hive jobs</description>
+    </property>
+
+    <!-- Database Connection Pool Settings -->
+    <property>
+        <name>datanucleus.connectionPool.maxPoolSize</name>
+        <value>50</value>
+        <description>Maximum number of connections in the pool</description>
+    </property>
+</configuration>
