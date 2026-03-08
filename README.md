@@ -1,22 +1,21 @@
-# Apache Hive Docker Environment
+# Apache Hive Docker 学习环境
 
-This project sets up a complete Apache Hive environment using Docker containers with existing images. It includes:
+基于 Docker 搭建的 Apache Hive 4.0.0 完整学习环境。
 
-- MySQL 8.0 for metadata storage
-- Hadoop NameNode and DataNode (bde2020 images)
-- Apache Hive 4.0.0 server and metastore with custom MySQL connector
+## 架构
 
-## Prerequisites
+| 服务 | 镜像 | 端口 | 说明 |
+|------|------|------|------|
+| hadoop-namenode | bde2020/hadoop-namenode:2.0.0-hadoop3.1.3-java8 | 9870, 8020 | HDFS NameNode |
+| hadoop-datanode | bde2020/hadoop-datanode:2.0.0-hadoop3.1.3-java8 | 9864 | HDFS DataNode |
+| mysql | mysql:8.0 | 3306 | Hive 元数据库 |
+| hive-metastore | apache/hive:4.0.0 (自定义) | 9083 | Hive Metastore 服务 |
+| hive-server | apache/hive:4.0.0 (自定义) | 10000, 10002 | HiveServer2 服务 |
 
-- Docker Desktop installed and running
-- Docker Compose installed
-- The following images should be available locally:
-  - `apache/hive:4.0.0`
-  - `mysql:8.0`
-  - `bde2020/hadoop-namenode:2.0.0-hadoop3.1.3-java8`
-  - `bde2020/hadoop-datanode:2.0.0-hadoop3.1.3-java8`
+## 首次启动
 
-These images can be pulled with:
+### 1. 拉取镜像（如果还没有）
+
 ```bash
 docker pull apache/hive:4.0.0
 docker pull mysql:8.0
@@ -24,144 +23,138 @@ docker pull bde2020/hadoop-namenode:2.0.0-hadoop3.1.3-java8
 docker pull bde2020/hadoop-datanode:2.0.0-hadoop3.1.3-java8
 ```
 
-## Getting Started
-
-### 1. Start the Environment
-
-Run the following command to start all services:
+### 2. 构建并启动
 
 ```bash
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
-Note the `--build` flag to ensure our custom Hive image with MySQL connector is built.
+### 3. 等待 MySQL 健康检查通过后，初始化 HDFS 目录
 
-### 2. Check Service Status
-
-Monitor the logs to ensure all services are running:
+等待约 30 秒让所有服务启动，然后执行：
 
 ```bash
-docker-compose logs -f
+docker exec hadoop-namenode sh -c "
+  hadoop fs -mkdir -p /user/hive/warehouse &&
+  hadoop fs -mkdir -p /tmp/hive &&
+  hadoop fs -chmod -R 777 /tmp &&
+  hadoop fs -chown -R hive:hive /user/hive
+"
 ```
 
-Wait for all services to be ready. The Hive server initialization might take a few minutes.
+### 4. 等待 HiveServer2 就绪（约 60 秒）
 
-### 3. Initialize the Hive Metastore Schema
-
-Once all services are running, initialize the Hive metastore:
+可通过以下命令查看启动进度：
 
 ```bash
-docker exec -it hive-server schematool -initSchema -dbType mysql
+docker logs -f hive-server
 ```
 
-### 4. Using Hive
+看到 `Starting HiveServer2` 和 `Hive Session ID = ...` 后再等约 30 秒即可使用。
 
-#### Option 1: Direct Hive CLI
+## 日常使用
 
-Access the Hive CLI through the hive-server container:
+### 停止环境
 
 ```bash
-docker exec -it hive-server hive
+docker compose stop
 ```
 
-#### Option 2: Beeline Client
-
-Connect using Beeline:
+### 重新启动（数据不丢失）
 
 ```bash
-docker exec -it hive-server beeline -u jdbc:hive2://localhost:10000
+docker compose start
 ```
 
-### 5. Testing Your Setup
+> 注意：不要使用 `docker compose down -v`，`-v` 会删除所有数据卷，需要重新走首次启动流程。
 
-After connecting to Hive, you can run these test queries:
+### 使用 Beeline 连接 Hive
+
+```bash
+docker exec -it hive-server /opt/hive/bin/beeline -u "jdbc:hive2://localhost:10000/"
+```
+
+### 测试示例
 
 ```sql
 SHOW DATABASES;
-USE default;
 CREATE TABLE test (id INT, name STRING);
-SHOW TABLES;
-INSERT INTO test VALUES (1, 'zhangsan'), (2, 'lisi');
+INSERT INTO TABLE test VALUES (1, 'zhangsan');
+INSERT INTO TABLE test VALUES (2, 'lisi');
 SELECT * FROM test;
 SELECT COUNT(*) FROM test;
 ```
 
-### 6. Accessing HDFS Web UI
+退出 Beeline：
 
-You can view HDFS files at: [http://localhost:9870](http://localhost:9870)
-
-The default Hive warehouse directory is located at `/user/hive/warehouse`.
-
-### 7. Using HiveServer2 with Beeline (Alternative)
-
-To use HiveServer2 with Beeline:
-
-1. Connect with Beeline:
-   ```bash
-   docker exec -it hive-server beeline
-   ```
-   
-   Then in Beeline:
-   ```sql
-   !connect jdbc:hive2://localhost:10000
-   # Use any username, no password required
-   ```
-
-## Stopping the Environment
-
-To stop all services:
-
-```bash
-docker-compose down
+```sql
+!quit
 ```
 
-To stop and remove volumes (this will delete all data):
+## Web UI 地址
+
+| 服务 | 地址 |
+|------|------|
+| HDFS 文件浏览 | http://localhost:9870 |
+| HiveServer2 | http://localhost:10002 |
+
+Hive 数据在 HDFS 中的路径：`/user/hive/warehouse`
+
+## 数据卷删除后重新初始化
+
+如果执行了 `docker compose down -v` 或需要完全重建：
 
 ```bash
-docker-compose down -v
+# 1. 重新构建并启动
+docker compose up --build -d
+
+# 2. 等待约 30 秒后初始化 HDFS 目录
+docker exec hadoop-namenode sh -c "
+  hadoop fs -mkdir -p /user/hive/warehouse &&
+  hadoop fs -mkdir -p /tmp/hive &&
+  hadoop fs -chmod -R 777 /tmp &&
+  hadoop fs -chown -R hive:hive /user/hive
+"
+
+# 3. 等待约 60 秒后即可使用 Beeline 连接
 ```
 
-## Troubleshooting
+## 排查问题
 
-1. If MySQL connection fails, ensure the hive-metastore-db service is running:
-   ```bash
-   docker ps | grep mysql
-   ```
+```bash
+# 查看各服务日志
+docker logs hive-server
+docker logs hive-metastore
+docker logs hive-mysql
+docker logs hadoop-namenode
+docker logs hadoop-datanode
 
-2. Check Hive logs:
-   ```bash
-   docker logs hive-server
-   docker logs hive-metastore
-   ```
+# 检查 HDFS 健康状态
+docker exec hadoop-namenode sh -c "hadoop dfsadmin -report"
 
-3. If HDFS is not available, check Hadoop services:
-   ```bash
-   docker logs hadoop-namenode
-   docker logs hadoop-datanode
-   ```
+# 检查容器状态
+docker compose ps
+```
 
-4. Verify ports are available:
-   - HDFS NameNode UI: 9870
-   - HiveServer2: 10000
-   - Hive Metastore: 9083
-
-## Project Structure
+## 项目文件
 
 ```
 docker_hive/
-├── docker-compose.yml          # Docker Compose configuration
-├── init.sql                    # MySQL initialization script
-├── init-hive.sql               # Hive initialization script
-├── README.md                   # This file
-└── hive/                       # Hive configuration directory
-    ├── Dockerfile              # Custom Dockerfile to add MySQL connector
-    ├── hive-site.xml           # Hive configuration
+├── docker-compose.yml   # 编排配置（5 个服务）
+├── init.sql             # MySQL 初始化脚本
+├── init-hive.sql        # Hive 测试 SQL
+├── README.md            # 本文件
+└── hive/
+    ├── Dockerfile       # 基于 apache/hive:4.0.0，添加 MySQL Connector/J
+    └── hive-site.xml    # Hive 配置（MySQL 元数据库、HDFS、MapReduce 本地模式）
 ```
 
-## Notes
+## 连接信息
 
-- We're reusing existing Docker images and extending them where needed
-- A custom Dockerfile adds the MySQL connector to the base Hive image
-- The first startup may take several minutes as it initializes all services
-- The Hive metastore schema initialization is required only for the first time
-- All data is persisted in Docker volumes
+| 项目 | 值 |
+|------|---|
+| MySQL 用户 | hive |
+| MySQL 密码 | hivepassword |
+| MySQL 数据库 | metastore_db |
+| Beeline JDBC URL | jdbc:hive2://localhost:10000/ |
+| HDFS NameNode | hdfs://hadoop-namenode:8020 |
