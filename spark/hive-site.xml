@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <!-- Hive Metastore Configuration for Spark -->
+    <property>
+        <name>hive.metastore.uris</name>
+        <value>thrift://hive-metastore:9083</value>
+        <description>Thrift URI for the remote metastore</description>
+    </property>
+
+    <!-- Metastore Warehouse Location -->
+    <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>hdfs://hadoop-namenode:8020/user/hive/warehouse</value>
+        <description>Location of default database for the warehouse</description>
+    </property>
+
+    <!-- HDFS Configuration -->
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://hadoop-namenode:8020</value>
+        <description>NameNode URI</description>
+    </property>
+
+    <!-- MySQL Connection for direct metastore access (if needed) -->
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:mysql://mysql:3306/metastore_db?createDatabaseIfNotExist=true&amp;useSSL=false&amp;allowPublicKeyRetrieval=true</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>com.mysql.cj.jdbc.Driver</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>hive</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>hivepassword</value>
+    </property>
+
+    <!-- Disable schema verification -->
+    <property>
+        <name>hive.metastore.schema.verification</name>
+        <value>false</value>
+    </property>
+
+    <!-- Support for Spark SQL -->
+    <property>
+        <name>hive.execution.engine</name>
+        <value>spark</value>
+    </property>
+</configuration>
