@@ -73,7 +73,7 @@ docker compose start
 ```bash
 docker exec -it hive-server /opt/hive/bin/beeline -u "jdbc:hive2://localhost:10000/"
 ```
-
+beeline -u jdbc:hive2://localhost:10000/default -n root
 ### 测试示例
 
 ```sql
