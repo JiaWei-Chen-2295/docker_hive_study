@@ -162,6 +162,10 @@ docker exec -it spark-master /bin/bash
 docker exec -it spark-master /opt/spark/bin/pyspark
 ```
 
+```Python
+textFile = spark.read.text("hdfs://hadoop-namenode:8020/spark_study/README.md")
+```
+
 ```python
 # 查看 Hive 数据库
 spark.sql("SHOW DATABASES").show()
