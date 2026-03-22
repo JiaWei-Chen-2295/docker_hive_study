@@ -94,6 +94,7 @@ services:
     volumes:
       - ./hive/hive-site.xml:/opt/hive/conf/hive-site.xml
       - ./init-hive.sql:/opt/init-hive.sql
+      - ./doc:/data
     depends_on:
       hive-metastore:
         condition: service_started

@@ -11,4 +11,10 @@ RUN curl -fSL https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/
     -o /opt/hive/lib/mysql-connector-j-8.0.33.jar && \
     chown hive:hive /opt/hive/lib/mysql-connector-j-8.0.33.jar
 
+# Copy custom entrypoint to clean PID files before start
+COPY entrypoint.sh /custom-entrypoint.sh
+RUN chmod +x /custom-entrypoint.sh
+
 USER hive
+
+ENTRYPOINT ["/custom-entrypoint.sh"]

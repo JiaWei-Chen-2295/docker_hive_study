@@ -59,6 +59,20 @@ docker logs -f hive-server
 
 ## 日常使用
 
+### 数据目录挂载
+
+`hive-server` 容器已挂载 `./doc` 到 `/data` 目录，可直接在 Hive 中使用本地数据文件：
+
+```sql
+-- 加载本地文件到 Hive 表
+load data local inpath '/data/03-sql/stu.txt' into table student;
+```
+
+| 宿主机路径 | 容器内路径 |
+|-----------|------------|
+| ./doc/03-sql/stu.txt | /data/03-sql/stu.txt |
+| ./doc/* | /data/* |
+
 ### 停止环境
 
 ```bash
