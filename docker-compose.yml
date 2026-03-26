@@ -42,12 +42,11 @@ services:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.1.3-java8
     container_name: hadoop-datanode
     restart: unless-stopped
-    hostname: localhost
     environment:
       - SERVICE_PRECONDITION=hadoop-namenode:8020
       - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
       - HDFS_CONF_dfs_replication=1
-      - HDFS_CONF_dfs_datanode_hostname=localhost
+      - HDFS_CONF_dfs_datanode_hostname=hadoop-datanode
       - HDFS_CONF_dfs_datanode_http_address=0.0.0.0:9864
       - HDFS_CONF_dfs_datanode_address=0.0.0.0:9866
       - HDFS_CONF_dfs_datanode_ipc_address=0.0.0.0:9867
@@ -116,6 +115,7 @@ services:
     volumes:
       - ./spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
       - ./spark/hive-site.xml:/opt/spark/conf/hive-site.xml
+      - ./jobs:/opt/spark/jobs
     depends_on:
       hive-metastore:
         condition: service_started

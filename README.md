@@ -73,6 +73,16 @@ load data local inpath '/data/03-sql/stu.txt' into table student;
 | ./doc/03-sql/stu.txt | /data/03-sql/stu.txt |
 | ./doc/* | /data/* |
 
+### Spark 任务目录挂载
+
+`spark-master` 容器已挂载宿主机 `./jobs` 到容器内 `/opt/spark/jobs`，可以把要提交的 `.py`、`.jar` 等任务文件直接放到这个目录：
+
+| 宿主机路径 | 容器内路径 |
+|-----------|------------|
+| ./jobs/* | /opt/spark/jobs/* |
+
+例如宿主机上的 `./jobs/wordcount.py`，在容器内对应路径就是 `/opt/spark/jobs/wordcount.py`。
+
 ### 停止环境
 
 ```bash
@@ -200,6 +210,14 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   --master spark://spark-master:7077 \
   --class org.apache.spark.examples.SparkPi \
   /opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar 100
+```
+
+提交本地挂载的 Python 任务示例：
+
+```bash
+docker exec -it spark-master /opt/spark/bin/spark-submit \
+  --master spark://spark-master:7077 \
+  /opt/spark/jobs/wordcount.py
 ```
 
 ## 数据卷删除后重新初始化
