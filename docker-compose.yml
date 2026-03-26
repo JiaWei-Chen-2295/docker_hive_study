@@ -138,6 +138,7 @@ services:
     volumes:
       - ./spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
       - ./spark/hive-site.xml:/opt/spark/conf/hive-site.xml
+      - ./jobs:/opt/spark/jobs
     depends_on:
       - spark-master
 
