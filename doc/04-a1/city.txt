@@ -1,0 +1,8 @@
+001	beijing
+002	taiyuan
+003	tianjin
+004	shanghai
+005	shijiazhuang
+006	beijing
+007	guangzhou
+008	nanjing
