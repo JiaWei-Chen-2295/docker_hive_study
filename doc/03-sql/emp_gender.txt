@@ -1,0 +1,5 @@
+zhangsan	A	male
+lisi	A	male
+wangwu	B	male
+zhaoliu	A	female
+zhuqi	B	female

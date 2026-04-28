@@ -1,0 +1,3 @@
+StarWars	science_fiction_film,war_film,action
+Mulan	action,adventure
+Frozen	animation,comedy,adventure

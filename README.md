@@ -2,6 +2,110 @@
 
 基于 Docker 搭建的 Apache Hive 4.0.0 + Spark 3.5.1 完整学习环境。
 
+## 常用命令
+
+### 启动环境
+
+```bash
+docker compose up --build -d
+```
+
+### 初始化 HDFS 目录
+
+```bash
+docker exec hadoop-namenode sh -c "
+  hadoop fs -mkdir -p /user/hive/warehouse &&
+  hadoop fs -mkdir -p /tmp/hive &&
+  hadoop fs -mkdir -p /spark-logs &&
+  hadoop fs -chmod -R 777 /tmp &&
+  hadoop fs -chmod 777 /spark-logs &&
+  hadoop fs -chown -R hive:hive /user/hive 
+"
+```
+
+### 查看 Hive 启动日志
+
+```bash
+docker logs -f hive-server
+```
+
+### 使用 Beeline 连接 Hive
+
+```bash
+docker exec -it hive-server /opt/hive/bin/beeline -u "jdbc:hive2://localhost:10000/"
+```
+
+### 停止和重启环境
+
+```bash
+docker compose stop
+docker compose start
+```
+
+### 提交 Spark 任务
+
+```bash
+docker exec -it spark-master /opt/spark/bin/spark-submit \
+  --master spark://spark-master:7077 \
+  --class org.apache.spark.examples.SparkPi \
+  /opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar 100
+```
+
+### 一键提交 Python 作业（VS Code）
+
+已新增通用提交脚本：`tools/submit_spark_job.py`，并配置 VS Code 任务：`Spark: Submit Python Job`。
+
+使用步骤：
+
+1. 在 VS Code 打开命令面板，执行 `Tasks: Run Task`
+2. 选择 `Spark: Submit Python Job`
+3. 按提示输入脚本路径（必须位于 `jobs/` 下），例如 `jobs/WordCount.py`
+4. 可选输入额外 Spark 参数与作业参数
+
+该任务默认包含与现有脚本一致的提交配置：
+
+- `--master spark://spark-master:7077`
+- `spark.ui.showConsoleProgress=false`
+- `spark.driver.extraJavaOptions=-Dlog4j.rootCategory=ERROR,console`
+- `spark.executor.extraJavaOptions=-Dlog4j.rootCategory=ERROR,console`
+
+也可直接在终端手动执行：
+
+```bash
+python tools/submit_spark_job.py jobs/WordCount.py
+python tools/submit_spark_job.py jobs/RDD/TopPayment.py --spark-args "--deploy-mode client" --job-args "10"
+```
+
+### 当前文件按钮提交（VS Code）
+
+已新增“当前编辑文件”提交方式：
+
+1. 在 VS Code 打开一个 `jobs/` 下的 Python 文件
+2. 点击右上角 `Run Code` 按钮
+3. 会自动把当前文件交给 `tools/submit_spark_job.py` 提交到 Spark
+
+如果你更习惯 `Run and Debug`：
+
+1. 点击右上角运行调试按钮
+2. 选择配置 `Spark: Submit Current Python File`
+3. 按提示输入可选参数后会提交当前窗口文件
+
+说明：
+
+- 当前文件必须在 `jobs/` 目录下
+- 如果当前文件不在 `jobs/` 下，提交脚本会提示路径不合法
+- 这样可以避免本机直接执行 `python -u 当前脚本.py` 导致访问不到容器内 `/opt/spark/...` 路径
+
+### 查看排查日志
+
+```bash
+docker logs hive-server
+docker logs hive-metastore
+docker logs hive-mysql
+docker logs hadoop-namenode
+docker logs hadoop-datanode
+```
+
 ## 架构
 
 | 服务 | 镜像 | 端口 | 说明 |
@@ -43,7 +147,7 @@ docker exec hadoop-namenode sh -c "
   hadoop fs -mkdir -p /spark-logs &&
   hadoop fs -chmod -R 777 /tmp &&
   hadoop fs -chmod 777 /spark-logs &&
-  hadoop fs -chown -R hive:hive /user/hive
+  hadoop fs -chown -R hive:hive /user/hive 
 "
 ```
 
@@ -215,9 +319,7 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
 提交本地挂载的 Python 任务示例：
 
 ```bash
-docker exec -it spark-master /opt/spark/bin/spark-submit \
-  --master spark://spark-master:7077 \
-  /opt/spark/jobs/WordCount.py
+docker exec -it spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 /opt/spark/jobs/WordCount.py
 ```
 
 ## 数据卷删除后重新初始化

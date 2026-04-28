@@ -1,0 +1,63 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Spark: Submit Python Job",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "${workspaceFolder}/tools/submit_spark_job.py",
+        "${input:jobScript}",
+        "--spark-args",
+        "${input:sparkArgs}",
+        "--job-args",
+        "${input:jobArgs}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Spark: Submit Current Python File",
+      "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "${workspaceFolder}/tools/submit_spark_job.py",
+        "${file}",
+        "--spark-args",
+        "${input:sparkArgs}",
+        "--job-args",
+        "${input:jobArgs}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "jobScript",
+      "type": "promptString",
+      "description": "Python 脚本路径（相对工作区，且需在 jobs/ 下）",
+      "default": "jobs/WordCount.py"
+    },
+    {
+      "id": "sparkArgs",
+      "type": "promptString",
+      "description": "额外 spark-submit 参数（可留空）",
+      "default": ""
+    },
+    {
+      "id": "jobArgs",
+      "type": "promptString",
+      "description": "传给 Python 作业的参数（可留空）",
+      "default": ""
+    }
+  ]
+}
