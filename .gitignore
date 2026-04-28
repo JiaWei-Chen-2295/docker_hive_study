@@ -1,1 +1,10 @@
 /.claude
+
+# IDE/editor local settings
+/.idea/
+/.vscode/
+
+# Spark/Hadoop generated artifacts
+**/_SUCCESS
+**/._SUCCESS.crc
+**/.part-*.crc
