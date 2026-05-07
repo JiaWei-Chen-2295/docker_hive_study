@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fSL https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar \
     -o /opt/spark/jars/mysql-connector-j-8.0.33.jar
 
+# Install JupyterLab for interactive Spark development
+RUN pip3 install --no-cache-dir jupyterlab
+
 # Copy configuration files
 COPY spark-defaults.conf /opt/spark/conf/spark-defaults.conf
 COPY hive-site.xml /opt/spark/conf/hive-site.xml

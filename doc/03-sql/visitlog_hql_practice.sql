@@ -148,3 +148,4 @@ SELECT
 FROM shop_user_flag
 GROUP BY shop
 ORDER BY shop;
+

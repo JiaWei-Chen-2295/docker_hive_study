@@ -18,12 +18,12 @@ SELECT * FROM visitlog ORDER BY userid, visitdate, shop;
 
 
 -- 数据预处理成为 View
-CREATE VIEW v_visitlog AS
-SELECT
-    userid,
-    shop,
-    CAST(regexp_replace(visitdate, '/', '-') AS DATE) AS visitdate
-FROM visitlog;
+-- CREATE VIEW v_visitlog AS
+-- SELECT
+--     userid,
+--     shop,
+--     CAST(regexp_replace(visitdate, '/', '-') AS DATE) AS visitdate
+-- FROM visitlog;
 
 -- 需求1
 SELECT
@@ -53,10 +53,10 @@ ORDER BY userid;
 
 -- 需求3
 -- 每个店铺访问次数前两名的访客信息，输出店铺名称、访客id、访问次数；
-CREATE VIEW shop_user_cnt_view AS
-SELECT shop, userid, COUNT(*) AS visit_cnt
-FROM v_visitlog
-GROUP BY shop, userid;
+-- CREATE VIEW shop_user_cnt_view AS
+-- SELECT shop, userid, COUNT(*) AS visit_cnt
+-- FROM v_visitlog
+-- GROUP BY shop, userid;
 
 
 SELECT

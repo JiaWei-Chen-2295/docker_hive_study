@@ -290,6 +290,50 @@ docker exec -it spark-master /bin/bash
 docker exec -it spark-master /opt/spark/bin/pyspark
 ```
 
+### PySpark 一键切换模式（推荐）
+
+为了保持命令简单，新增脚本：`tools/spark_mode.ps1`。
+
+你只需要记一个命令：
+
+```powershell
+.\tools\spark_mode.ps1 <mode>
+```
+
+可选模式：
+
+- `repl`：普通 PySpark 交互（默认）
+- `notebook`：Notebook 兼容模式（当前镜像下自动使用 JupyterLab）
+- `lab`：使用 JupyterLab 作为 PySpark Driver
+
+示例：
+
+```powershell
+.\tools\spark_mode.ps1 repl
+.\tools\spark_mode.ps1 notebook
+.\tools\spark_mode.ps1 lab
+```
+
+Bash 也支持（Linux/macOS/Git Bash）：
+
+```bash
+./tools/spark_mode.sh repl
+./tools/spark_mode.sh notebook
+./tools/spark_mode.sh lab
+```
+
+可通过环境变量覆盖容器名和端口：
+
+```bash
+CONTAINER=spark-master PORT=8889 ./tools/spark_mode.sh lab
+```
+
+如果需要改端口或容器名：
+
+```powershell
+.\tools\spark_mode.ps1 lab -Port 8889 -Container spark-master
+```
+
 ```Python
 textFile = spark.read.text("hdfs://hadoop-namenode:8020/spark_study/README.md")
 ```
