@@ -8,3 +8,6 @@
 **/_SUCCESS
 **/._SUCCESS.crc
 **/.part-*.crc
+
+# Jupyter
+**/.ipynb_checkpoints/
